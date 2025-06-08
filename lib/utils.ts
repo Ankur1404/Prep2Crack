@@ -2,12 +2,12 @@ import { interviewCovers, mappings } from "@/constants";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-
+// Utility to merge Tailwind classes with clsx
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-
+// Base URL for tech icons
 const techIconBaseURL = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
 
 const docLinks: Record<string, string> = {
@@ -75,12 +75,13 @@ const docLinks: Record<string, string> = {
   amplify: "https://docs.amplify.aws/",
 };
 
+// Normalize tech names to match devicon filenames
 const normalizeTechName = (tech: string) => {
   const key = tech.toLowerCase().replace(/\.js$/, "").replace(/\s+/g, "");
   return mappings[key as keyof typeof mappings];
 };
 
-
+// Check if icon exists (using HEAD request)
 const checkIconExists = async (url: string) => {
   try {
     const response = await fetch(url, { method: "HEAD" });
@@ -90,7 +91,7 @@ const checkIconExists = async (url: string) => {
   }
 };
 
-
+// Get actual URLs for tech logos, fall back to default if not found
 export const getTechLogos = async (techArray: string[]) => {
   const logoURLs = techArray.map((tech) => {
     const normalized = normalizeTechName(tech);
