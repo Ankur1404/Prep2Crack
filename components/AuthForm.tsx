@@ -12,6 +12,9 @@ import FormField from "@/components/FormField"
 import Link from "next/link"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/firebase/client"
+import { SignIn, SignUp } from "@/lib/actions/auth.action"
 
 
 const AuthFormSchema = (type: FormType) => {
@@ -36,18 +39,42 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
   const isSignIn = type === "sign-in"
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (type === "sign-up") {
-       toast.success("Account created successfully!,Please Sign In")
+        const { name, email, password } = values
+        const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+        const result = await SignUp({
+          uid: userCredentials.user.uid,
+          name: name!,
+          email,
+          password,
+        })
+
+        if(!result?.success) {
+          toast.error(result?.message || "An error occurred while creating your account.")
+          return;
+        }
+        toast.success("Account created successfully!,Please Sign In")
         Router.push("/sign-in")
       } else {
+        const { email, password } = values
+        const userCredentials = await signInWithEmailAndPassword(auth, email, password);
+        const idToken = await userCredentials.user.getIdToken();
+        if(!idToken)
+          {
+          toast.error("Failed to retrieve ID token. Please try again.")
+          return;
+          }
+          await SignIn({
+            email, idToken
+          })
         toast.success("Signed in successfully!")
         Router.push("/")
       }
     } catch (error) {
       console.error(error)
-      toast.error("An error occurred while processing your request.")
+      toast.error(`there was an error `)
     }
   }
 
