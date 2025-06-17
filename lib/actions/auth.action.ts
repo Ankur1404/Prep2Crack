@@ -2,6 +2,7 @@
 
 import { db,auth } from "@/firebase/admin";
 import { cookies } from "next/headers";
+
 const one_week = 60 * 60 * 24 * 7; 
 export async function SignUp(params:SignUpParams)
 {
@@ -87,30 +88,28 @@ export async function setSesssionCookie(idtoken:string)
   })
 }
 
-export async function getCurrentUser():Promise<User | null>
-{
+export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get("session")?.value;
-  if(!sessionCookie) {
-    return null;
-  }
-  try{
+
+  if (!sessionCookie) return null;
+
+  try {
     const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
     const userRecord = await db.collection("users").doc(decodedClaims.uid).get();
-    if(!userRecord.exists) {
-      return null;
-    }
-    
+
+    if (!userRecord.exists) return null;
+
     return {
-     ... userRecord.data(),
-      id: decodedClaims.id,
+      id: userRecord.id, // this is your Firebase Auth UID
+      ...(userRecord.data() || {}), // spread other fields (name, email, etc.)
     } as User;
-  }catch(e:any)
-  {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     return null;
   }
 }
+
 
 export async function SignOut()
 {
@@ -127,3 +126,39 @@ export async function isAuthenticated()
   const user = await getCurrentUser();
   return !!user;
 }
+
+
+export async function getInterviewByUserId(userId: string): Promise<Interview[] | null> {
+  const snapshot = await db
+    .collection('interviews')
+    .where('userId', '==', userId)
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  if (snapshot.empty) return null;
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<Interview, 'id'>),
+  }));
+}
+
+export async function getLatestInterviewByUserId(params: GetLatestInterviewsParams): Promise<Interview[] | null> {
+
+  const{userId,limit = 20} = params
+
+  const snapshot = await db
+    .collection('interviews')
+    .where('finalized', '==', true)
+    .where('userId','!=',userId)
+    .limit(limit)
+    .get();
+
+  if (snapshot.empty) return null;
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<Interview, 'id'>),
+  }));
+}
+
