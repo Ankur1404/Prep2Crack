@@ -1,18 +1,17 @@
 import { error } from "console";
-import { google } from '@ai-sdk/google';
+import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { getRandomInterviewCover } from "@/lib/utils";
 import { db } from "@/firebase/admin";
-export async function GET(){
-  return Response.json({success: true , data: 'Thank you'}, {status: 200});
-
+export async function GET() {
+  return Response.json({ success: true, data: "Thank you" }, { status: 200 });
 }
 
 export async function POST(request: Request) {
-  const {type,role,level,techstack,amount,userid} = await request.json();
-    try{
-      const {text:questions} = await generateText({
-        model: google("gemini-2.0-flash-001"),
+  const { type, role, level, techstack, amount, userid } = await request.json();
+  try {
+    const { text: questions } = await generateText({
+      model: google("gemini-2.0-flash-001"),
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
@@ -25,23 +24,40 @@ export async function POST(request: Request) {
         Return the questions formatted like this:
         ["Question 1", "Question 2", "Question 3"]
         
-        Thank you! <3
+        Thank you! 
     `,
-  
-      });
-       const interview = {
-        role:role,type:type,level:level,techstack:techstack.split(','),userId:userid,questions:JSON.parse(questions),
-        finalized:true,
-        coverImage:getRandomInterviewCover(),
-        createdAt: new Date().toISOString(),
-       }
+    });
+    const interview = {
+      role: role,
+      type: type,
+      level: level,
+      techstack: techstack.split(","),
+      userId: userid,
+      questions: JSON.parse(questions),
+      finalized: true,
+      coverImage: getRandomInterviewCover(),
+      createdAt: new Date().toISOString(),
+    };
 
-       await db.collection('interviews').add(interview);
-       return Response.json({ success: true, message: 'Interview questions generated successfully', data: interview }, { status: 200 });
-    }catch(e){
-      console.error(error);
-      return Response.json({ success: false, message: 'Error processing request' }, { status: 500 });
-    }
+    await db.collection("interviews").add(interview);
+    return Response.json(
+      {
+        success: true,
+        message: "Interview questions generated successfully",
+        data: interview,
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    console.error(error);
+    return Response.json(
+      { success: false, message: "Error processing request" },
+      { status: 500 }
+    );
+  }
 
-  return Response.json({ success: true, message: 'Data received successfully' }, { status: 200 });
+  return Response.json(
+    { success: true, message: "Data received successfully" },
+    { status: 200 }
+  );
 }

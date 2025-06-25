@@ -2,9 +2,9 @@ import React from 'react'
 import { Button } from '@/components/ui/button';
 import  Link  from 'next/link';
 import Image  from 'next/image';
-import { dummyInterviews } from '../../constants';
 import InterviewCard from '@/components/InterviewCard';
-import { getCurrentUser, getInterviewByUserId, getLatestInterviewByUserId } from '@/lib/actions/auth.action';
+import { getInterviewByUserId, getLatestInterviewByUserId } from '@/lib/actions/general.action';
+import { getCurrentUser } from '@/lib/actions/auth.action';
 
 
 
@@ -26,7 +26,7 @@ const page = async() => {
       <h1 className='text-3xl font-bold text-center mt-10'>Welcome to Prep2Crack!</h1>
       <p className='text-center mt-4'>An AI-powered platform for interview preparation</p>
       <div className='flex justify-center mt-10'>
-        <Image src="/logo.svg" alt="Logo" width={150} height={150} />
+        <Image src="/logo.png" alt="Logo" width={200} height={200} />
       </div> 
     </div>
     <section className='card-cta'>
@@ -43,7 +43,7 @@ const page = async() => {
       </div>
 
       <Image src= "/robot.png" alt ="P2C" width ={400} height = {400} className='max-sm:hidden'></Image>
-    </section>                                                                                                     <section className='flex flex-col gap-6 mt-8'>
+    </section>                                                                                    <section className='flex flex-col gap-6 mt-8'>
       <h2>
         Your Interviews:
       </h2>
