@@ -82,28 +82,53 @@ export async function createFeedback(params: CreateFeedbackParams) {
         "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
     });
 
-    const feedback = await db.collection("feedback").add({
-      interviewId,
-      userId,
-      totalScore,
-      categoryScores,
-      strengths,
-      areasForImprovement,
-      finalAssessment,
-      createdAt: new Date().toISOString(),
-    })
+    // Check if feedback already exists for this interview
+    const existingFeedback = await db
+      .collection("feedback")
+      .where("interviewId", "==", interviewId)
+      .where("userId", "==", userId)
+      .limit(1)
+      .get();
+
+    let feedbackId: string;
+
+    if (!existingFeedback.empty) {
+      // Update existing feedback
+      const feedbackDoc = existingFeedback.docs[0];
+      await feedbackDoc.ref.update({
+        totalScore,
+        categoryScores,
+        strengths,
+        areasForImprovement,
+        finalAssessment,
+        updatedAt: new Date().toISOString(),
+      });
+      feedbackId = feedbackDoc.id;
+    } else {
+      // Create new feedback
+      const feedback = await db.collection("feedback").add({
+        interviewId,
+        userId,
+        totalScore,
+        categoryScores,
+        strengths,
+        areasForImprovement,
+        finalAssessment,
+        createdAt: new Date().toISOString(),
+      });
+      feedbackId = feedback.id;
+    }
 
     return {
       success: true,
-      message: "Feedback created successfully",
-      feedbackId: feedback.id,
-     
+      message: existingFeedback.empty ? "Feedback created successfully" : "Feedback updated successfully",
+      feedbackId,
     };
   } catch (error) {
-    console.error("Error creating feedback:", error);
+    console.error("Error creating/updating feedback:", error);
     return {
       success: false,
-      message: "Error creating feedback",
+      message: "Error creating/updating feedback",
     };
   }
 }

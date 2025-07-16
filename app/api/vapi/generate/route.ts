@@ -3,6 +3,8 @@ import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { getRandomInterviewCover } from "@/lib/utils";
 import { db } from "@/firebase/admin";
+import { v4 as uuidv4 } from 'uuid';
+
 export async function GET() {
   return Response.json({ success: true, data: "Thank you" }, { status: 200 });
 }
@@ -28,6 +30,7 @@ export async function POST(request: Request) {
     `,
     });
     const interview = {
+      id: uuidv4(),
       role: role,
       type: type,
       level: level,
@@ -39,7 +42,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    await db.collection("interviews").add(interview);
+    await db.collection("interviews").doc(interview.id).set(interview);
     return Response.json(
       {
         success: true,

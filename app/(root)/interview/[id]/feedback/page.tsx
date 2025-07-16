@@ -62,7 +62,10 @@ const page = async ({ params }: RouteParams) => {
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full px-6 py-3 flex items-center gap-3">
                 <Image src="/calendar.svg" alt="calendar" height={20} width={20} />
                 <span className="text-white font-medium">
-                  {dayjs(feedback?.createdAt).format("DD MMMM YYYY, hh:mm A")}
+                  {dayjs(feedback?.updatedAt || feedback?.createdAt).format("DD MMMM YYYY, hh:mm A")}
+                  {feedback?.updatedAt && feedback?.updatedAt !== feedback?.createdAt && (
+                    <span className="ml-2 text-xs opacity-75">(Updated)</span>
+                  )}
                 </span>
               </div>
             </div>

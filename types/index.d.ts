@@ -11,6 +11,7 @@ interface Feedback {
   areasForImprovement: string[];
   finalAssessment: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface Interview {

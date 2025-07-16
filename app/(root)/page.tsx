@@ -16,8 +16,8 @@ const page = async() => {
     await getLatestInterviewByUserId({userId:user?.id!})
   ])
 
-  const hasPastInteriews = userInterviews?.length>0;
-  const hasUpcomingInterviews = latestInterviews?.length>0;
+  const hasPastInteriews = (userInterviews ?? []).length > 0;
+  const hasUpcomingInterviews = (latestInterviews ?? []).length > 0;
 
 
   return (
@@ -38,7 +38,7 @@ const page = async() => {
           Whether you're a student, a professional, or someone looking to switch careers, Prep2Crack is here to help you succeed.
         </p>
         <Button asChild className='btn-primary max-sm:w-full'>  
-          <Link href="/">Get Started with the interview</Link>
+          <Link href="/interview/new">Get Started with the interview</Link>
         </Button>
       </div>
 

@@ -82,8 +82,8 @@ const AuthForm = ({ type }: { type: FormType }) => {
     
     <div className="card-border lg:min-w-[566px] w-full max-w-sm mx-auto">
       <div className="flex flex-col gap-6 card py-14 px-10">
-        <div className="flex flex-row gap-2 justify-center">
-          <Image src="/logo.svg" alt="Logo" width={30} height={34} />
+        <div className="flex flex-row gap-2 justify-center items-center">
+          <Image src="/image.png" alt="Logo" width={65} height={65} className="drop-shadow-[0_0_12px_orange]" />
           <h2 className="text-primary-100">Prep2Crack</h2>
         </div>
 
