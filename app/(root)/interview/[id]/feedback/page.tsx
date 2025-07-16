@@ -1,3 +1,5 @@
+import Loader from '@/components/Loader';
+import { Suspense } from 'react';
 import { getCurrentUser } from "@/lib/actions/auth.action"
 import { getInterviewById } from "@/lib/actions/general.action"
 import { getFeedbackByInterviewId } from "@/lib/actions/general.action"
@@ -184,4 +186,11 @@ const page = async ({ params }: RouteParams) => {
   )
 }
 
-export default page
+export default function FeedbackPageWrapper(props: RouteParams) {
+  return (
+    <Suspense fallback={<Loader />}>
+      {/* @ts-expect-error Async Server Component */}
+      {page(props)}
+    </Suspense>
+  );
+}

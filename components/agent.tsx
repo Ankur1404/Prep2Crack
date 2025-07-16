@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { interviewer } from '@/constants';
 import { createFeedback } from '@/lib/actions/general.action';
+import Loader from './Loader';
 
 enum CallStatus {
   ACTIVE = "ACTIVE",
@@ -159,70 +160,76 @@ const Agent = ({ userName, userId, type, interviewId, questions }: AgentProps) =
 
   return (
     <>
-      <div className='call-view'>
-        <div className='card-interviewer'>
-          <div className='avatar'>
-            <Image
-              src="/ai-avatar.png"
-              alt="Agent"
-              width={65}
-              height={54}
-              className='object-cover'
-            />
-            {isSpeaking && (
-              <span
-                className='absolute inline-flex size-5/6 animate-ping rounded-full bg-primary-200 opacity-75'
-                style={{ animationDuration: "2s" }}
-              />
+      {(callStatus === CallStatus.CONNECTING || callStatus === CallStatus.FINISHED) ? (
+        <Loader />
+      ) : (
+        <>
+          <div className='call-view'>
+            <div className='card-interviewer'>
+              <div className='avatar'>
+                <Image
+                  src="/ai-avatar.png"
+                  alt="Agent"
+                  width={65}
+                  height={54}
+                  className='object-cover'
+                />
+                {isSpeaking && (
+                  <span
+                    className='absolute inline-flex size-5/6 animate-ping rounded-full bg-primary-200 opacity-75'
+                    style={{ animationDuration: "2s" }}
+                  />
+                )}
+              </div>
+              <h3>AI Interviewer</h3>
+            </div>
+            <div className='card-border'>
+              <div className='card-content'>
+                <Image
+                  src="/avatar.jpeg"
+                  alt="user avatar"
+                  width={200}
+                  height={200}
+                  className='object-cover rounded-full'
+                />
+                <h3>{userName}</h3>
+              </div>
+            </div>
+          </div>
+
+          {messages.length > 0 && (
+            <div className='transcript-border'>
+              <div className='transcript'>
+                <p key={latestMessage} className={cn('transition-opacity duration-300 opacity-0', 'animate-fadeIn opacity-100')}>
+                  {latestMessage}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className='w-full flex justify-center'>
+            {callStatus !== CallStatus.ACTIVE ? (
+              <button className='relative btn-call' onClick={handleCall}>
+                <span className={cn(
+                  'absolute animate-ping rounded-full opacity-75',
+                  callStatus !== CallStatus.CONNECTING && 'hidden'
+                )} />
+                <span>
+                  {callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED
+                    ? 'Call'
+                    : callStatus === CallStatus.CONNECTING
+                      ? 'Connecting...'
+                      : '...'}
+                </span>
+              </button>
+            ) : (
+              <button className='btn-disconnect' onClick={handleDisconnect}>
+                <span>End Call</span>
+              </button>
             )}
           </div>
-          <h3>AI Interviewer</h3>
-        </div>
-        <div className='card-border'>
-          <div className='card-content'>
-            <Image
-              src="/avatar.jpeg"
-              alt="user avatar"
-              width={200}
-              height={200}
-              className='object-cover rounded-full'
-            />
-            <h3>{userName}</h3>
-          </div>
-        </div>
-      </div>
-
-      {messages.length > 0 && (
-        <div className='transcript-border'>
-          <div className='transcript'>
-            <p key={latestMessage} className={cn('transition-opacity duration-300 opacity-0', 'animate-fadeIn opacity-100')}>
-              {latestMessage}
-            </p>
-          </div>
-        </div>
+        </>
       )}
-
-      <div className='w-full flex justify-center'>
-        {callStatus !== CallStatus.ACTIVE ? (
-          <button className='relative btn-call' onClick={handleCall}>
-            <span className={cn(
-              'absolute animate-ping rounded-full opacity-75',
-              callStatus !== CallStatus.CONNECTING && 'hidden'
-            )} />
-            <span>
-              {callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED
-                ? 'Call'
-                : callStatus === CallStatus.CONNECTING
-                  ? 'Connecting...'
-                  : '...'}
-            </span>
-          </button>
-        ) : (
-          <button className='btn-disconnect' onClick={handleDisconnect}>
-            <span>End Call</span>
-          </button>
-        )}
-      </div>
     </>
   )
 }
